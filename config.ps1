@@ -2,6 +2,7 @@ Clear-Host
 
 # Constants
 
+$version = 1.1
 $cppConfigJson =
 @'
 {
@@ -590,7 +591,7 @@ if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
     # Welcome
     Write-Host 
 "
-HACKATHON LASALLE 2022 - PREBAND
+HACKATHON LASALLE 2022 - Sargitario A $version
 Sempre que precisar, este utilitario ira configurar automaticamente seu projeto.
 "
     
@@ -638,6 +639,10 @@ Sempre que precisar, este utilitario ira configurar automaticamente seu projeto.
     if ($fileValid){
         Write-Host "[OK] Configuracao de bilibliotecas valida - .vscode/c_cpp_properties.json"
     }
+
+    # Backup .vscode with confs
+    Write-Host "Copia d .vscode funcional feita!"
+
 
     # Install Arduino libraries
     
@@ -726,7 +731,7 @@ Sempre que precisar, este utilitario ira configurar automaticamente seu projeto.
 else {
     Write-Host 
 @"
-HACKATHON LASALLE 2022 - PREBAND
+HACKATHON LASALLE 2022 - Sargitario A $version
 Sempre que precisar, este utilitario ira configurar automaticamente seu projeto.
 
 O que sera feito no seu computador:
