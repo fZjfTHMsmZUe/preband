@@ -3,7 +3,7 @@ Clear-Host
 # Constants
 
 $cppConfigJson =
-'
+@'
 {
     "version": 4,
     "configurations": [
@@ -543,10 +543,12 @@ $cppConfigJson =
         }
     ]
 }
-'
+'@
 $myDocs = [Environment]::GetFolderPath("MyDocuments");
+$arduinoLibs = "$myDocs\Arduino\libraries";
 $cppConfigJson = $cppConfigJson.replace("__mydocs__",$myDocs.replace("\", "\\"));
-$includePath = "$($myDocs.replace("\", "\\"))\\Arduino\\libraries\\**"
+$includePaths = @("$($myDocs.replace("\", "\\"))\\Arduino\\libraries\\**",
+"C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\libraries\\**")
 
 # Functions
 Function Exit-Key() {
@@ -603,21 +605,76 @@ Este utilitario ira configurar automaticamente seu projeto.
     }
     
     ## Create cpp_props if not exists
-    $fileValid = $false
+    $fileValid = $true
     $file = "c_cpp_properties.json"
     if (Test-Path ".vscode/$file") {
         $file = Get-Content ".vscode/$file"
-        foreach($i in $file){
-            if ($i.Contains($includePath)) {
-                $fileValid = $true
+
+        [System.Collections.ArrayList]$fileHandler = $file
+        foreach($path in $includePaths){
+            $pathExists = $false
+            foreach($i in $file){
+                if ($i.Contains($path)) {
+                    $pathExists = $true
+                }
+            }
+            if (-Not($pathExists)) {
+                $indexIncludePath = $fileHandler.IndexOf('            "includePath": [')
+                $fileHandler.Insert($indexIncludePath+1, '                "' + $path + '",')
+                $fileValid = $false
             }
         }
+        
+        if (-Not($fileValid)) {
+            Write-Host "Corrigindo configuracoes..."
+            $fileHandler > .vscode/c_cpp_properties.json
+        }
     }
-    if ($fileValid){
-        Write-Host "[OK] Configuracao de bilibliotecas valida"
-    } else {
+    else {
+        # If file does not exist
         Write-Host "Criando configuracoes de bibliotecas..."
         $cppConfigJson > .vscode/c_cpp_properties.json
+    }
+    if ($fileValid){
+        Write-Host "[OK] Configuracao de bilibliotecas valida - .vscode/c_cpp_properties.json"
+    }
+
+    # Install Arduino libraries
+    
+    ## BMP180MI
+    $file = "$arduinoLibs\BMP180MI"
+    if (Test-Path $file) {
+        Write-Host "[OK] Biblioteca BMP180M existe - sensor de pressao e altitude"
+    }
+    else {
+        Write-Host "Instalando biblitoeca BMP180MI...`n"
+        git clone https://bitbucket.org/christandlg/bmp180mi.git $file
+        Write-Host "`n"
+    }
+    
+    ## RF24
+    $package = "RF24"
+    $description = "Comunicador de radio"
+    $file = "$arduinoLibs\$package"
+    if (Test-Path $file) {
+        Write-Host "[OK] Biblioteca $package existe - $description"
+    }
+    else {
+        Write-Host "Instalando biblitoeca $package...`n"
+        git clone https://github.com/nRF24/RF24.git $file
+        Write-Host "`n"
+    }
+    
+    ## RF24Network
+    $package = "RF24Network"
+    $file = "$arduinoLibs\$package"
+    if (Test-Path $file) {
+        Write-Host "[OK] Biblioteca $package existe - $description"
+    }
+    else {
+        Write-Host "Instalando biblitoeca $package...`n"
+        git clone https://github.com/nRF24/RF24Network.git $file
+        Write-Host "`n"
     }
 
     # Install programs if needed
@@ -653,11 +710,10 @@ O que sera feito no seu computador:
 4. Verificar se o VSCode precisa reiniciar para reconhecer os programas instalados;
 5. Configurar os arquivos necessarios para compilar o Arduino com sucesso no VSCode.
 6. [opcional] Baixar o projeto
+Resumindo: Chocolatey, MinGW, Arduino, VSCode, configs
 
-Resumindo: Chocolatey, CLang, MinGW, Arduino, VSCode, configs
-
-Nao se preocupe:
 Caso voce ja possua seus pacotes instalados ou tudo configurado, este utilitario ira pular estas etapas.
+Caso queira você pode instalar manualmente os pacotes.
 ---
 A partir daqui, as alteracoes serao feitas automaticamente!
 Caso seja necessario, este programa ira reiniciar o VSCode para funcionar corretamente!
@@ -690,6 +746,22 @@ Deseja iniciar? S/n
         Write-Host "`n"
         $needRestart = $true
     }
+
+    # # Clang / LLVM
+    # $file = "C:\Program Files\LLVM\bin\clang.exe"
+    # if (CheckInstalledSoftware("clang")) {
+    #     Write-Host "[OK] Clang existe"
+    # }
+    # else {
+    #     Write-Host "Instalando Clang (LLVM)...`n"
+    #     $path = $env:temp
+    #     if (-Not (Test-Path "$env:temp/arduino.exe")) {
+    #         Start-BitsTransfer -Source https://downloads.arduino.cc/arduino-1.8.19-windows.exe -Destination "$env:temp/arduino.exe"
+    #     }
+    #     Start-Process "$env:temp/arduino.exe" -Wait
+    #     Write-Host "`n"
+    #     $needRestart = $true
+    # }
 
     # Arduino
     $file = "C:\Program Files (x86)\Arduino\arduino.exe"
@@ -741,6 +813,8 @@ Deseja iniciar? S/n
         Write-Host "Instalando extensao Arduino para VSCode..."
         code --install-extension vsciot-vscode.vscode-arduino
         Write-Host "`n"
+        Write-Host "Inicializando Arduino pela 1a vez, para configurar as pastas de bibliotecas..."
+        Start-Process "C:\Program Files (x86)\Arduino\arduino.exe"
     }
 
     ## C/C++
