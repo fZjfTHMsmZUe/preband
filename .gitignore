@@ -1,6 +1,7 @@
 # Etc
 .vscode
 .bkp*
+.output
 temp
 
 # Prerequisites

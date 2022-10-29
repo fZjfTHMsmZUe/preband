@@ -1,1 +1,2 @@
-"c:\\Users\\Rapha\\OneDrive\\Documentos\\Arduino\\libraries"
+"E:\\Nuvem\\GoogleDrive\\Documentos\\Arduino\\libraries\\**",
+"C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\libraries",
