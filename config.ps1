@@ -591,7 +591,7 @@ if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
     Write-Host 
 "
 HACKATHON LASALLE 2022 - PREBAND
-Este utilitario ira configurar automaticamente seu projeto.
+Sempre que precisar, este utilitario ira configurar automaticamente seu projeto.
 "
     
     # Config project
@@ -676,16 +676,42 @@ Este utilitario ira configurar automaticamente seu projeto.
         git clone https://github.com/nRF24/RF24Network.git $file
         Write-Host "`n"
     }
+    
+    ## MQ135
+    $package = "MQ135"
+    $description = "Sensor de CO2"
+    $file = "$arduinoLibs\$package"
+    if (Test-Path $file) {
+        Write-Host "[OK] Biblioteca $package existe - $description"
+    }
+    else {
+        Write-Host "Instalando biblitoeca $package...`n"
+        git clone https://github.com/Phoenix1747/MQ135.git $file
+        Write-Host "`n"
+    }
+    
+    ## MQ135
+    $package = "MQ135"
+    $description = "Sensor de CO2"
+    $file = "$arduinoLibs\$package"
+    if (Test-Path $file) {
+        Write-Host "[OK] Biblioteca $package existe - $description"
+    }
+    else {
+        Write-Host "Instalando biblitoeca $package...`n"
+        git clone https://github.com/Phoenix1747/MQ135.git $file
+        Write-Host "`n"
+    }
 
     # Install programs if needed
     if (CheckInstalledSoftware("")){
         Write-Host "[OK] Todos os programas estao instalados"
     } else {
         Write-Host
-"
-Alguns programas necessarios para o Arduino não foram encontrados.
-Para poder instalar os pacotes e preciso executar com privilegios de administrador.
-Deseja iniciar? S/n
+        "
+        Alguns programas necessarios para o Arduino não foram encontrados.
+        Para poder instalar os pacotes e preciso executar com privilegios de administrador.
+        Deseja iniciar? S/n
 "
         $yn = Read-Host "n"
         if ($yn -ne "s") { exit }
@@ -699,9 +725,9 @@ Deseja iniciar? S/n
 # If admin - Install softwares
 else {
     Write-Host 
-    @"
-    HACKATHON LASALLE 2022 - PREBAND
-Este utilitario ira configurar automaticamente seu projeto.
+@"
+HACKATHON LASALLE 2022 - PREBAND
+Sempre que precisar, este utilitario ira configurar automaticamente seu projeto.
 
 O que sera feito no seu computador:
 1. Instalar 'Chocolatey' ele permite instalar o compilador C/C++ 'MINGW' com sucesso;
